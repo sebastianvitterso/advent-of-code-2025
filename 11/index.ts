@@ -99,12 +99,25 @@ if (!dacDevice) throw new Error("No 'dac'-device")
 const totalPathCountFromSvrToOut = svrDevice.countPathsTo(outDevice)
 console.log(`Total number of distinct paths from 'svr' to 'out': ${totalPathCountFromSvrToOut}`)
 
-const pathsFromSvrToOut = svrDevice.pathsTo(outDevice)
-const filteredPaths = pathsFromSvrToOut.filter(
-  (path) => path.some((device) => device === fftDevice) && path.some((device) => device === dacDevice),
-)
+// const pathsFromSvrToOut = svrDevice.pathsTo(outDevice)
+// const filteredPaths = pathsFromSvrToOut.filter(
+//   (path) => path.some((device) => device === fftDevice) && path.some((device) => device === dacDevice),
+// )
 
-// Note: This fails because of it uses too much memory for the full input
-console.log(
-  `Number of distinct paths from 'svr' to 'out' that pass through both 'fft' and 'dac': ${filteredPaths.length}`,
-)
+const pathsFromDacToFftCount = dacDevice.countPathsTo(fftDevice)
+if (pathsFromDacToFftCount > 0) {
+  const pathsFromSvrToDacCount = svrDevice.countPathsTo(dacDevice)
+  const pathsFromFftToOutCount = fftDevice.countPathsTo(outDevice)
+  const filteredPathsCount = pathsFromSvrToDacCount * pathsFromDacToFftCount * pathsFromFftToOutCount
+  console.log(
+    `Number of distinct paths from 'svr' to 'out' that pass through both 'fft' and 'dac': ${filteredPathsCount}`,
+  )
+} else {
+  const pathsFromFftToDacCount = fftDevice.countPathsTo(dacDevice)
+  const pathsFromSvrToFftCount = svrDevice.countPathsTo(fftDevice)
+  const pathsFromDacToOutCount = dacDevice.countPathsTo(outDevice)
+  const filteredPathsCount = pathsFromSvrToFftCount * pathsFromFftToDacCount * pathsFromDacToOutCount
+  console.log(
+    `Number of distinct paths from 'svr' to 'out' that pass through both 'fft' and 'dac': ${filteredPathsCount}`,
+  )
+}
